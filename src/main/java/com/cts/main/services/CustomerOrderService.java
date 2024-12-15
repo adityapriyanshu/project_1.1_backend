@@ -10,7 +10,9 @@ public interface CustomerOrderService {
 	
 	public CustomerOrder getOrderById(Long id);
 	
-	public CustomerOrder createOder(CustomerOrder order);
+	public CustomerOrder createOrder(CustomerOrder order);
+	
+	public CustomerOrder updateOrderById(Long id, CustomerOrder order);
 	
 	void deleteOrder(Long id);
 }
