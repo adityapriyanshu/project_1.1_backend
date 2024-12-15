@@ -37,12 +37,6 @@ public class CustomerOrder {
 	inverseJoinColumns = @JoinColumn(name = "order_items_id"))
 	private List<MenuItem> orderItems;
 
-//	@ElementCollection
-//	@CollectionTable(name = "customer_order_items", joinColumns = @JoinColumn(name = "customer_order_id"))
-//	@MapKeyJoinColumn(name = "menu_item_id")
-//	@Column(name = "quantity")
-//	private Map<MenuItem, Integer> orderItems; // Map to keep track of MenuItem and its quantity
-
 	@Column(name = "total_price")
 	private double totalPrice;
 }
