@@ -12,10 +12,12 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
 @Table(name = "customer_order")
+@NoArgsConstructor
 public class CustomerOrder {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,4 +41,16 @@ public class CustomerOrder {
 
 	@Column(name = "total_price")
 	private double totalPrice;
+
+	public CustomerOrder(String customerName, String customerPhoneNumber, String customerTableNumber,
+			List<MenuItem> orderItems, double totalPrice) {
+		super();
+		this.customerName = customerName;
+		this.customerPhoneNumber = customerPhoneNumber;
+		this.customerTableNumber = customerTableNumber;
+		this.orderItems = orderItems;
+		this.totalPrice = totalPrice;
+	}
+	
+	
 }
