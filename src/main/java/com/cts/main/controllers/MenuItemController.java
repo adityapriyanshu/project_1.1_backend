@@ -16,23 +16,23 @@ import com.cts.main.entities.MenuItem;
 import com.cts.main.services.MenuItemService;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/menu")
 public class MenuItemController {
 	@Autowired
 	private MenuItemService menuItemService;
 
-	@GetMapping("/menu-items")
+	@GetMapping("/view")
 	public List<MenuItem> getAllItems() {
 		return menuItemService.getAllItems();
 	}
 
-	@PostMapping("/add-item")//admin
+	@PostMapping("/add")//admin
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	public MenuItem addFoodItem(@RequestBody MenuItem menuItem) {
 		return menuItemService.addFoodItem(menuItem);
 	}
 
-	@PutMapping("/update-item/{id}")//admin
+	@PutMapping("/update/{id}")//admin
 	@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 	public ResponseEntity<MenuItem> updateMenuItem(@PathVariable Long id, @RequestBody MenuItem menuItem) {
 		MenuItem updateMenuItem = menuItemService.updateFoodItemById(id, menuItem);
@@ -43,7 +43,7 @@ public class MenuItemController {
 		}
 	}
 	
-	@DeleteMapping("/delete-item/{id}")//admin
+	@DeleteMapping("/delete/{id}")//admin
 	@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 	public void deleteMenuItem(@PathVariable Long id){
 		 menuItemService.deleteFoodItemById(id);

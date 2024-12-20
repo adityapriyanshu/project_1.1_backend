@@ -9,5 +9,5 @@ import com.cts.main.entities.User;
 public interface UserRepository extends JpaRepository<User, Long> {
 
 	Optional<User> findByUsername(String usernameOrEmail);
-
+	boolean existsByUsername(String username);
 }
