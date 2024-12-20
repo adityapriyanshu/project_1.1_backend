@@ -1,41 +1,26 @@
 package com.cts.main.entities;
 
-import java.util.Collection;
-
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name="User_Details")
+@Table(name = "user_details", uniqueConstraints = { @UniqueConstraint(columnNames = "username") })
 @Data
 @NoArgsConstructor
-//@AllArgsConstructor
-//@Builder
-public class User{
+public class User {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	Long user_id;
-	String username;
-	String password;
-	String roles;
-	
-	public User(String username, String password, String roles) {
-		super();
-		this.username = username;
-		this.password = password;
-		this.roles = roles;
-	}
-	
-	
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long user_id;
+
+    private String username;
+    private String password;
+    private String roles;
+
+    public User(String username, String password, String roles) {
+        this.username = username;
+        this.password = password;
+        this.roles = roles;
+    }
 }
