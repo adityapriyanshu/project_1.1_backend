@@ -40,7 +40,7 @@ public class SecurityConfig {
         http.csrf((csrf)->csrf.disable())
                 .authorizeHttpRequests((authorize) ->
                         authorize
-                                .requestMatchers("/api/menu-items","/user/adduser").permitAll()
+                                .requestMatchers("/menu/view","/user/adduser").permitAll()
 //                                .requestMatchers(HttpMethod.POST, "/api/menuItems/**").hasRole("ADMIN")
 //                                .requestMatchers(HttpMethod.PUT, "/api/menuItems/**").hasRole("ADMIN")
 //                                .requestMatchers(HttpMethod.DELETE, "/api/menuItems/**").hasRole("ADMIN")

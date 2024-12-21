@@ -141,7 +141,7 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
         CustomerOrder existingOrder = customerOrderRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
 
-        if (!isAdmin() || !existingOrder.getUser().getUsername().equals(getCurrentUsername())) {
+        if (!isAdmin() && !existingOrder.getUser().getUsername().equals(getCurrentUsername())) {
             throw new RuntimeException("You do not have permission to edit this order");
         }
 
