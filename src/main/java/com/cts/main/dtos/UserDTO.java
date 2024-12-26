@@ -8,8 +8,8 @@ public class UserDTO {
 	
 	private Long user_id;
 
-    @Pattern(regexp = "^[A-Z][a-zA-Z]{2,11}$", message = "Username should be 3 to 12 characters long and starting with a capital letter.")
-    private String username;
+	@Pattern(regexp = "^[A-Z][a-zA-Z0-9]{2,11}$", message = "Username should be 3 to 12 characters long, start with a capital letter, and can include numbers.")
+	private String username;
 
     @Pattern(regexp = "^(?=.*[!@#$%^&*]).{4,10}$", message = "Password should be 4 to 10 characters long with at least 1 special character.")
     private String password;
