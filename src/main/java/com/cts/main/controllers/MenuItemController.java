@@ -55,6 +55,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import com.cts.main.responses.ApiResponse;
 import com.cts.main.dtos.MenuItemDTO;
 import com.cts.main.entities.MenuItem;
 import com.cts.main.services.MenuItemService;
@@ -75,14 +76,16 @@ public class MenuItemController {
     public ResponseEntity<?> addFoodItem(@Valid @RequestBody MenuItemDTO menuItemDTO) {
         logger.info("Adding new food item: {}", menuItemDTO.getFoodName());
         MenuItem menuItem = menuItemService.addFoodItem(menuItemDTO);
-        return ResponseEntity.ok(menuItem);
+        ApiResponse<MenuItem> response = new ApiResponse<>("Item added successfully!", menuItem);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/view")
-    public List<MenuItem> getAllItems() {
+    public ResponseEntity<?> getAllItems() {
         logger.info("Fetching all menu items");
         List<MenuItem> items = menuItemService.getAllItems();
-        return items;
+        ApiResponse<List<MenuItem>> response = new ApiResponse<>("Items fetched successfully!", items);
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/update/{id}")
@@ -90,7 +93,8 @@ public class MenuItemController {
     public ResponseEntity<?> updateMenuItem(@PathVariable Long id, @Valid @RequestBody MenuItemDTO menuItemDTO) {
         logger.info("Updating menu item with ID: {}", id);
         MenuItem updateMenuItem = menuItemService.updateFoodItemById(id, menuItemDTO);
-        return ResponseEntity.ok(updateMenuItem);
+        ApiResponse<MenuItem> response = new ApiResponse<>("Item updated successfully!", updateMenuItem);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/delete/{id}")
@@ -98,6 +102,7 @@ public class MenuItemController {
     public ResponseEntity<?> deleteMenuItem(@PathVariable Long id) {
         logger.info("Deleting menu item with ID: {}", id);
         menuItemService.deleteFoodItemById(id);
-        return ResponseEntity.ok().build();
+        ApiResponse<String> response = new ApiResponse<>("Item added successfully!", null);
+        return ResponseEntity.ok(response);
     }
 }
