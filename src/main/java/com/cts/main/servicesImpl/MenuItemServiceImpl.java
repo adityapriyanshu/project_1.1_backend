@@ -36,6 +36,7 @@ public class MenuItemServiceImpl implements MenuItemService {
 
     @Override
     public void deleteFoodItemById(Long id) {
+    	menuItemRepository.findById(id).orElseThrow(() -> new RuntimeException("Item not found"));
         menuItemRepository.deleteById(id);
     }
 }

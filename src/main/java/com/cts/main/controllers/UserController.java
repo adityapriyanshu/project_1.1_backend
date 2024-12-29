@@ -102,7 +102,6 @@
 //    }
 //}
 
-
 //package com.cts.main.controllers;
 //
 //import java.util.List;
@@ -203,69 +202,78 @@ import jakarta.validation.Valid;
 @Validated
 public class UserController {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+	private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-    @Autowired
-    private UserService userService;
+	@Autowired
+	private UserService userService;
 
-    @PostMapping("/adduser")
-    public ResponseEntity<ApiResponse<String>> createUser(@Valid @RequestBody UserDTO userDTO) {
-        logger.info("Attempting to create user with username: {}", userDTO.getUsername());
-        //checking if roles in put admin
-        if ("ROLE_ADMIN".equals(userDTO.getRoles())) {
-            if (!isAdmin()) {
-                logger.info("Permission denied: User does not have permission to create an admin user.");
-                ApiResponse<String> response = new ApiResponse<>("You do not have permission to create an admin user.", null);
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-            }
-        }
-        //if getRoles put by the user in not "ROLE_ADMIN" then here
-        // create "ROLE_CUSTOMER" using .adduser(userDTO)
-        // as .adduser() will send back responseEntity 
-        ResponseEntity<?> serviceResponse = userService.adduser(userDTO);
-        
-        // check if creation is successful then create response
-        if (serviceResponse.getStatusCode().is2xxSuccessful()) {
-            ApiResponse<String> response = new ApiResponse<>("User created successfully", null);
-            logger.info("User created successfully with username: {}", userDTO.getUsername());
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        }
-        return (ResponseEntity<ApiResponse<String>>) serviceResponse;
-    }
+	@PostMapping("/adduser")
+	public ResponseEntity<ApiResponse<User>> createUser(@Valid @RequestBody UserDTO userDTO) {
+		logger.info("Attempting to create user with username: {}", userDTO.getUsername());
+		// checking if role is put admin or not if someone else trying to make admin
+		// role then throw error
+		if ("ROLE_ADMIN".equals(userDTO.getRoles())) {
+			if (!isAdmin()) {
+				logger.info("Permission denied: User does not have permission to create an admin user.");
+				ApiResponse<User> response = new ApiResponse<>("You do not have permission to create an admin user.",
+						null);
+				return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+			}
+		}
 
-    @PutMapping("/updateuser")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<ApiResponse<String>> updateUser(@Valid @RequestBody UserDTO userDTO) {
-        logger.info("Attempting to update user with ID: {}", userDTO.getUser_id());
-        ResponseEntity<?> serviceResponse = userService.updateuser(userDTO);
-        if (serviceResponse.getStatusCode().is2xxSuccessful()) {
-            ApiResponse<String> response = new ApiResponse<>("User updated successfully", null);
-            logger.info("User updated successfully with ID: {}", userDTO.getUser_id());
-            return ResponseEntity.ok(response);
-        }
-        return (ResponseEntity<ApiResponse<String>>) serviceResponse;
-    }
+		// if getRoles put by the user in not "ROLE_ADMIN" then here
+		// create "ROLE_CUSTOMER" or "ROLE_ADMIN" using .adduser(userDTO)
+		// as .adduser() will send back responseEntity
+		ResponseEntity<ApiResponse<User>> serviceResponse = (ResponseEntity<ApiResponse<User>>) userService
+				.adduser(userDTO);
 
-    @GetMapping("/showuser")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<ApiResponse<List<User>>> getuser() {
-        logger.info("Fetching all users");
-        List<User> users = userService.getuser();
-        ApiResponse<List<User>> response = new ApiResponse<>("Users fetched successfully!", users);
-        logger.info("Number of users fetched: {}", users.size());
-        return ResponseEntity.ok(response);
-    }
+		// check if creation is successful then create response else jump to return
+		// statement to throw error.
+		if (serviceResponse.getStatusCode().is2xxSuccessful()) {
+			ApiResponse<User> apiResponse = serviceResponse.getBody();
+			User createdUser = apiResponse != null ? apiResponse.getData() : null;
+			ApiResponse<User> response = new ApiResponse<>("User created successfully", createdUser);
+			logger.info("User created successfully with username: {}", userDTO.getUsername());
+			return ResponseEntity.status(HttpStatus.CREATED).body(response);
+		}
+		return (ResponseEntity<ApiResponse<User>>) serviceResponse;
+	}
 
-    private boolean isAdmin() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (principal instanceof UserDetails) {
-            UserDetails userDetails = (UserDetails) principal;
-            boolean isAdmin = userDetails.getAuthorities().stream()
-                    .anyMatch(grantedAuthority -> "ROLE_ADMIN".equals(grantedAuthority.getAuthority()));
-            logger.info("User is admin: {}", isAdmin);
-            return isAdmin;
-        }
-        return false;
-    }
+	@PutMapping("/updateuser")
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	public ResponseEntity<ApiResponse<User>> updateUser(@Valid @RequestBody UserDTO userDTO) {
+		logger.info("Attempting to update user with ID: {}", userDTO.getUser_id());
+		ResponseEntity<ApiResponse<User>> serviceResponse = (ResponseEntity<ApiResponse<User>>) userService
+				.updateuser(userDTO);
+		if (serviceResponse.getStatusCode().is2xxSuccessful()) {
+			ApiResponse<User> apiResponse = serviceResponse.getBody();
+			User updatedUser = apiResponse != null ? apiResponse.getData() : null;
+			ApiResponse<User> response = new ApiResponse<>("User updated successfully!", updatedUser);
+			logger.info("User updated successfully with ID: {}", userDTO.getUser_id());
+			return ResponseEntity.ok(response);
+		}
+		return (ResponseEntity<ApiResponse<User>>) serviceResponse;
+	}
+
+	@GetMapping("/showuser")
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	public ResponseEntity<ApiResponse<List<User>>> getuser() {
+		logger.info("Fetching all users");
+		List<User> users = userService.getuser();
+		ApiResponse<List<User>> response = new ApiResponse<>("Users fetched successfully!", users);
+		logger.info("Number of users fetched: {}", users.size());
+		return ResponseEntity.ok(response);
+	}
+
+	private boolean isAdmin() {
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (principal instanceof UserDetails) {
+			UserDetails userDetails = (UserDetails) principal;
+			boolean isAdmin = userDetails.getAuthorities().stream()
+					.anyMatch(grantedAuthority -> "ROLE_ADMIN".equals(grantedAuthority.getAuthority()));
+			logger.info("User is admin: {}", isAdmin);
+			return isAdmin;
+		}
+		return false;
+	}
 }
-

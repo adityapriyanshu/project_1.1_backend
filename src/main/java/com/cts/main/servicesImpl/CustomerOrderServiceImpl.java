@@ -77,10 +77,13 @@
 //    }
 //}
 
-
 package com.cts.main.servicesImpl;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -98,99 +101,117 @@ import com.cts.main.services.CustomerOrderService;
 @Service
 public class CustomerOrderServiceImpl implements CustomerOrderService {
 
-	
-    @Autowired
-    private CustomerOrderRepository customerOrderRepository;
+	@Autowired
+	private CustomerOrderRepository customerOrderRepository;
 
-    @Autowired
-    private MenuItemRepository menuItemRepository;
+	@Autowired
+	private MenuItemRepository menuItemRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+	@Autowired
+	private UserRepository userRepository;
 
-    @Override
-    public CustomerOrder getOrderById(Long id) {
-        CustomerOrder order = customerOrderRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
-        
-        if (!isAdmin() && !order.getUser().getUsername().equals(getCurrentUsername())) {
-            throw new RuntimeException("You do not have permission to view this order");
-        }
-        return order;
-    }
+	@Override
+	public CustomerOrder getOrderById(Long id) {
+		CustomerOrder order = customerOrderRepository.findById(id)
+				.orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
 
-    @Override
-    public CustomerOrder createOrder(CustomerOrderDTO orderDTO) {
-        List<MenuItem> menuItems = menuItemRepository.findAllById(orderDTO.getOrderItems());
-        double totalPrice = menuItems.stream().mapToDouble(MenuItem::getFoodPrice).sum();
+		if (!isAdmin() && !order.getUser().getUsername().equals(getCurrentUsername())) {
+			throw new RuntimeException("You do not have permission to view this order");
+		}
+		return order;
+	}
 
-        CustomerOrder order = new CustomerOrder();
-        order.setCustomerName(orderDTO.getCustomerName());
-        order.setCustomerPhoneNumber(orderDTO.getCustomerPhoneNumber());
-        order.setCustomerTableNumber(orderDTO.getCustomerTableNumber());
-        order.setOrderItems(menuItems);
-        order.setTotalPrice(totalPrice);
+	@Override
+	public CustomerOrder createOrder(CustomerOrderDTO orderDTO) {
+		List<MenuItem> menuItems = menuItemRepository.findAllById(orderDTO.getOrderItems());
+		double totalPrice = menuItems.stream().mapToDouble(MenuItem::getFoodPrice).sum();
 
-        User user = getCurrentUser();
-        order.setUser(user);
+		CustomerOrder order = new CustomerOrder();
+		order.setCustomerName(orderDTO.getCustomerName());
+		order.setCustomerPhoneNumber(orderDTO.getCustomerPhoneNumber());
+		order.setCustomerTableNumber(orderDTO.getCustomerTableNumber());
+		order.setOrderItems(menuItems);
+		order.setTotalPrice(totalPrice);
 
-        return customerOrderRepository.save(order);
-    }
+		User user = getCurrentUser();
+		order.setUser(user);
 
-    @Override
-    public CustomerOrder updateOrderById(Long id, CustomerOrderDTO orderDTO) {
-        CustomerOrder existingOrder = customerOrderRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
+		return customerOrderRepository.save(order);
+	}
 
-        if (!isAdmin() && !existingOrder.getUser().getUsername().equals(getCurrentUsername())) {
-            throw new RuntimeException("You do not have permission to edit this order");
-        }
+	@Override
+	public CustomerOrder updateOrderById(Long id, CustomerOrderDTO orderDTO) {
+		CustomerOrder existingOrder = customerOrderRepository.findById(id)
+				.orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
 
-        List<MenuItem> menuItems = menuItemRepository.findAllById(orderDTO.getOrderItems());
-        double totalPrice = menuItems.stream().mapToDouble(MenuItem::getFoodPrice).sum();
+		if (!isAdmin() && !existingOrder.getUser().getUsername().equals(getCurrentUsername())) {
+			throw new RuntimeException("You do not have permission to edit this order");
+		}
 
-        existingOrder.setCustomerName(orderDTO.getCustomerName());
-        existingOrder.setCustomerPhoneNumber(orderDTO.getCustomerPhoneNumber());
-        existingOrder.setCustomerTableNumber(orderDTO.getCustomerTableNumber());
-        existingOrder.setOrderItems(menuItems);
-        existingOrder.setTotalPrice(totalPrice);
+		List<MenuItem> menuItems = menuItemRepository.findAllById(orderDTO.getOrderItems());
+		double totalPrice = menuItems.stream().mapToDouble(MenuItem::getFoodPrice).sum();
 
-        return customerOrderRepository.save(existingOrder);
-    }
+		existingOrder.setCustomerName(orderDTO.getCustomerName());
+		existingOrder.setCustomerPhoneNumber(orderDTO.getCustomerPhoneNumber());
+		existingOrder.setCustomerTableNumber(orderDTO.getCustomerTableNumber());
+		existingOrder.setOrderItems(menuItems);
+		existingOrder.setTotalPrice(totalPrice);
 
-    @Override
-    public void deleteOrder(Long id) {
-        CustomerOrder order = customerOrderRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
-        customerOrderRepository.delete(order);
-    }
+		return customerOrderRepository.save(existingOrder);
+	}
 
-    private String getCurrentUsername() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (principal instanceof UserDetails) {
-            return ((UserDetails) principal).getUsername();
-        } else {
-            return principal.toString();
-        }
-    }
+	@Override
+	public void deleteOrder(Long id) {
+		CustomerOrder order = customerOrderRepository.findById(id)
+				.orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
+		customerOrderRepository.delete(order);
+	}
 
-    private boolean isAdmin() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (principal instanceof UserDetails) {
-            UserDetails userDetails = (UserDetails) principal;
-            return userDetails.getAuthorities().stream()
-                    .anyMatch(grantedAuthority -> "ROLE_ADMIN".equals(grantedAuthority.getAuthority()));
-        }
-        return false;
-    }
+	private String getCurrentUsername() {
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (principal instanceof UserDetails) {
+			return ((UserDetails) principal).getUsername();
+		} else {
+			return principal.toString();
+		}
+	}
 
-    private User getCurrentUser() {
-        return userRepository.findByUsername(getCurrentUsername())
-            .orElseThrow(() -> new RuntimeException("User not found: " + getCurrentUsername()));
-    }
+	private boolean isAdmin() {
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (principal instanceof UserDetails) {
+			UserDetails userDetails = (UserDetails) principal;
+			return userDetails.getAuthorities().stream()
+					.anyMatch(grantedAuthority -> "ROLE_ADMIN".equals(grantedAuthority.getAuthority()));
+		}
+		return false;
+	}
 
-    @Override
-    public List<CustomerOrder> getAllOrders() {
-        return customerOrderRepository.findAll();
-    }
+	private User getCurrentUser() {
+		return userRepository.findByUsername(getCurrentUsername())
+				.orElseThrow(() -> new RuntimeException("User not found: " + getCurrentUsername()));
+	}
+
+	@Override
+	public List<CustomerOrder> getAllOrders() {
+		return customerOrderRepository.findAll();
+	}
+
+	@Override
+	public List<Map<String, Object>> getAllOrdersForCooks() {
+
+		List<CustomerOrder> orders = customerOrderRepository.findAll();
+		return orders.stream().map(order -> {
+			Map<String, Object> orderMap = new LinkedHashMap<>();
+			orderMap.put("id", order.getId());
+			orderMap.put("customerName", order.getCustomerName());
+			orderMap.put("customerTableNumber", order.getCustomerTableNumber());
+			orderMap.put("orderItems", order.getOrderItems().stream().map(item -> {
+				Map<String, Object> itemMap = new LinkedHashMap<>();
+				itemMap.put("id", item.getId());
+				itemMap.put("foodName", item.getFoodName());
+				return itemMap;
+			}).collect(Collectors.toList()));
+			return orderMap;
+		}).collect(Collectors.toList());
+	}
 }

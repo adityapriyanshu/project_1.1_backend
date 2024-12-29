@@ -25,13 +25,12 @@ public class CustomerOrderDTO {
 	@Pattern(regexp = "^\\d{10}$", message = "Invalid phone number!")
 	private String customerPhoneNumber;
 
-	@NotBlank(message = "Invalid Table Number: Cannot be blank!")
-	@NotNull(message = "Invalid Table Number: Cannot be null!")
-	@Size(min = 1, max = 10, message = "Please select between 1-10 for table number!")
+	@NotNull(message = "Customer table number is required")
+	@Pattern(regexp = "^(10|[1-9])$", message = "Choose table number between 1 and 10")
 	private String customerTableNumber;
 
 	@NotNull(message = "Order Items Required!")
 	@Size(min = 1, message = "Please select at least one Food Item to order!")
 	private List<Long> orderItems;
-	
+
 }
