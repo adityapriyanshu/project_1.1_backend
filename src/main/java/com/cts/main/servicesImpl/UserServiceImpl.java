@@ -68,45 +68,55 @@ import com.cts.main.services.UserService;
 @Service
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    private UserRepository userRepository;
-    
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    
-    @Override
-    public ResponseEntity<?> adduser(UserDTO userDTO) {
-        try {
-            // Check if the username already exists
-            if (userRepository.existsByUsername(userDTO.getUsername())) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already exists.");
-            }
-            // Proceed with saving the new user if username is unique
-            User user = new User(userDTO.getUsername(), passwordEncoder.encode(userDTO.getPassword()), userDTO.getRoles());
-            User createdUser = userRepository.save(user);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
-        } catch (DataIntegrityViolationException ex) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already exists.");
-        }
-    }
-    
-    @Override
-    public List<User> getuser() {
-        return userRepository.findAll();
-    }
+	@Autowired
+	private UserRepository userRepository;
 
-    @Override
-    public ResponseEntity<String> updateuser(UserDTO userDTO) {
-        Optional<User> optionalUser = userRepository.findById(userDTO.getUser_id());
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-            user.setUsername(userDTO.getUsername());
-            user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-            user.setRoles(userDTO.getRoles());
-            userRepository.save(user);
-            return ResponseEntity.status(HttpStatus.OK).body("User updated successfully");
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-        }
-    }
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
+	@Override
+	public ResponseEntity<?> adduser(UserDTO userDTO) {
+		try {
+			// Check if the username already exists
+			if (userRepository.existsByUsername(userDTO.getUsername())) {
+				return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already exists! Try different.");
+			}
+			// Proceed with saving the new user if username is unique
+			User user = new User(userDTO.getUsername(), passwordEncoder.encode(userDTO.getPassword()),
+					userDTO.getRoles());
+			User createdUser = userRepository.save(user);
+			return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+		} catch (DataIntegrityViolationException ex) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already exists! Try different.");
+		}
+	}
+
+	@Override
+	public List<User> getuser() {
+		return userRepository.findAll();
+	}
+
+	@Override
+	public ResponseEntity<String> updateuser(UserDTO userDTO) {
+
+		// finding user by user id. If not found call else statement
+		Optional<User> optionalUser = userRepository.findById(userDTO.getUser_id());
+		if (optionalUser.isPresent()) {
+			User user = optionalUser.get();
+
+			// Check if the new username already exists and is not the current user's
+			// username
+			if (!user.getUsername().equals(userDTO.getUsername())
+					&& userRepository.existsByUsername(userDTO.getUsername())) {
+				return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already exists! Try different.");
+			}
+			user.setUsername(userDTO.getUsername());
+			user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+			user.setRoles(userDTO.getRoles());
+			userRepository.save(user);
+			return ResponseEntity.status(HttpStatus.OK).body("User updated successfully!");
+		} else {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found!");
+		}
+	}
 }
