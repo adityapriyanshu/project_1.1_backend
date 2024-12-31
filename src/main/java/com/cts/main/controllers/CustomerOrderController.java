@@ -131,7 +131,7 @@ public class CustomerOrderController {
 	public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getAllOrdersForCooks() {
 		logger.info("Fetching all customer orders for admin");
 		List<Map<String, Object>> orders = customerOrderService.getAllOrdersForCooks();
-		ApiResponse<List<Map<String, Object>>> response = new ApiResponse<>("Orders fetched successfully", orders);
+		ApiResponse<List<Map<String, Object>>> response = new ApiResponse<>("Orders fetched successfully!", orders);
 		return ResponseEntity.ok(response);
 	}
 }
