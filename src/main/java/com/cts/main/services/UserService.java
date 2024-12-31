@@ -23,11 +23,12 @@ import org.springframework.http.ResponseEntity;
 
 import com.cts.main.dtos.UserDTO;
 import com.cts.main.entities.User;
+import com.cts.main.responses.ApiResponse;
 
 public interface UserService {
 	ResponseEntity<?> adduser(UserDTO userDTO);
 
 	List<User> getuser();
 
-	ResponseEntity<String> updateuser(UserDTO userDTO);
+	ResponseEntity<ApiResponse<User>> updateuser(UserDTO userDTO);
 }

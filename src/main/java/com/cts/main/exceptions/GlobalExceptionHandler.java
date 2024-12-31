@@ -14,37 +14,46 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.cts.main.responses.ApiResponse;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+//	@ExceptionHandler(MethodArgumentNotValidException.class)
+//	public ResponseEntity<Map<String, List<String>>> handleValidationErrors(MethodArgumentNotValidException ex) {
+//		List<String> errors = ex.getBindingResult().getFieldErrors().stream().map(FieldError::getDefaultMessage)
+//				.collect(Collectors.toList());
+//		return new ResponseEntity<>(getErrorsMap(errors), new HttpHeaders(), HttpStatus.BAD_REQUEST);
+//	}
+
 	@ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, List<String>>> handleValidationErrors(MethodArgumentNotValidException ex) {
-        List<String> errors = ex.getBindingResult().getFieldErrors()
-                .stream().map(FieldError::getDefaultMessage).collect(Collectors.toList());
-        return new ResponseEntity<>(getErrorsMap(errors), new HttpHeaders(), HttpStatus.BAD_REQUEST);
-    }
+	public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationExceptions(
+			MethodArgumentNotValidException ex) {
+		Map<String, String> errors = new HashMap<>();
+		ex.getBindingResult().getAllErrors().forEach(error -> {
+			String fieldName = ((FieldError) error).getField();
+			String errorMessage = error.getDefaultMessage();
+			errors.put(fieldName, errorMessage);
+		});
+		ApiResponse<Map<String, String>> response = new ApiResponse<>("Validation failed", errors);
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+	}
 
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<Map<String, List<String>>> handleNotFoundException(UserNotFoundException ex) {
-        List<String> errors = Collections.singletonList(ex.getMessage());
-        return new ResponseEntity<>(getErrorsMap(errors), new HttpHeaders(), HttpStatus.NOT_FOUND);
-    }
+	@ExceptionHandler(UserNotFoundException.class)
+	public ResponseEntity<ApiResponse<String>> handleNotFoundException(UserNotFoundException ex) {
+		ApiResponse<String> response = new ApiResponse<>(ex.getMessage(), null);
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+	}
 
-    @ExceptionHandler(Exception.class)
-    public final ResponseEntity<Map<String, List<String>>> handleGeneralExceptions(Exception ex) {
-        List<String> errors = Collections.singletonList(ex.getMessage());
-        return new ResponseEntity<>(getErrorsMap(errors), new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+	@ExceptionHandler(Exception.class)
+	public final ResponseEntity<ApiResponse<String>> handleGeneralExceptions(Exception ex) {
+		ApiResponse<String> response = new ApiResponse<>(ex.getMessage(), null);
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+	}
 
-    @ExceptionHandler(RuntimeException.class)
-    public final ResponseEntity<Map<String, List<String>>> handleRuntimeExceptions(RuntimeException ex) {
-        List<String> errors = Collections.singletonList(ex.getMessage());
-        return new ResponseEntity<>(getErrorsMap(errors), new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    private Map<String, List<String>> getErrorsMap(List<String> errors) {
-        Map<String, List<String>> errorResponse = new HashMap<>();
-        errorResponse.put("errors", errors);
-        return errorResponse;
-    }
+	@ExceptionHandler(RuntimeException.class)
+	public final ResponseEntity<ApiResponse<String>> handleRuntimeExceptions(RuntimeException ex) {
+		ApiResponse<String> response = new ApiResponse<>(ex.getMessage(), null);
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+	}
 }

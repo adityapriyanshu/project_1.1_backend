@@ -102,7 +102,7 @@ public class MenuItemController {
     public ResponseEntity<?> deleteMenuItem(@PathVariable Long id) {
         logger.info("Deleting menu item with ID: {}", id);
         menuItemService.deleteFoodItemById(id);
-        ApiResponse<String> response = new ApiResponse<>("Item added successfully!", null);
+        ApiResponse<String> response = new ApiResponse<>("Item deleted successfully!", null);
         return ResponseEntity.ok(response);
     }
 }
