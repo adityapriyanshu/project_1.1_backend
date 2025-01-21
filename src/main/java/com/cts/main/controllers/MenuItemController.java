@@ -64,6 +64,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/menu")
+@CrossOrigin(origins = "http://localhost:3000")
 public class MenuItemController {
 
     private static final Logger logger = LoggerFactory.getLogger(MenuItemController.class);

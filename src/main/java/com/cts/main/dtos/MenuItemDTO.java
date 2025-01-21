@@ -17,7 +17,7 @@ public class MenuItemDTO {
 	private String foodName;
 
 	@NotNull(message = "Invalid foodPrice: Cannot be null")
-	@Min(value = 1, message = "Please select a value greater than or equal to 1 for food price!")
-	@Max(value = 100, message = "Please select a value less than or equal to 100 for food price!")
+	@Min(value = 20, message = "Please select a value greater than or equal to 20 for food price!")
+	@Max(value = 1000, message = "Please select a value less than or equal to 1000 for food price!")
 	private double foodPrice;
 }

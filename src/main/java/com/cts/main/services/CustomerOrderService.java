@@ -30,4 +30,8 @@ public interface CustomerOrderService {
 	void deleteOrder(Long id);
 
 	List<Map<String, Object>> getAllOrdersForCooks();
+
+	List<CustomerOrder> getOrdersByUsername(String username);
+
+//	CustomerOrder getOrderByUserName(String username);
 }

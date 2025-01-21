@@ -37,11 +37,13 @@ public class ApplicationDataLoader implements ApplicationRunner {
 		
 		if(menuItemRepository.count() == 0) {	
 		
-		MenuItem menu1 = new MenuItem("Burger", 5.00);
-		MenuItem menu2 = new MenuItem("Pizza", 8.00);
-		MenuItem menu3 = new MenuItem("Salad", 5.00);
-		MenuItem menu4 = new MenuItem("Sushi", 12.00);
-		menuItemRepository.saveAll(Arrays.asList(menu1, menu2, menu3, menu4));
+		MenuItem menu1 = new MenuItem("Veg Burger", 125.00);
+		MenuItem menu2 = new MenuItem("Margarita Pizza", 480.00);
+		MenuItem menu3 = new MenuItem("Salad Bowl", 75.00);
+		MenuItem menu4 = new MenuItem("Sushi", 220.00);
+		MenuItem menu5 = new MenuItem("Chole Bhature", 90.00);
+		MenuItem menu6 = new MenuItem("Ice-cream", 45.00);
+		menuItemRepository.saveAll(Arrays.asList(menu1, menu2, menu3, menu4, menu5, menu6));
 		
 //		
 //		CustomerOrder order1 = new CustomerOrder("Aditya","7492919397", "Table 1", Arrays.asList(menu1, menu2), 13.00, customer);

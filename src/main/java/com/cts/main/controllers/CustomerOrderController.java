@@ -73,12 +73,13 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@CrossOrigin(origins = "*")
 public class CustomerOrderController {
 
 	private static final Logger logger = LoggerFactory.getLogger(CustomerOrderController.class);
 
 	@Autowired
-	private CustomerOrderService customerOrderService;
+	private CustomerOrderService customerOrderService;	
 
 	@GetMapping("/customer")
 	@PreAuthorize("hasAuthority('ROLE_ADMIN')")
@@ -97,6 +98,26 @@ public class CustomerOrderController {
 		ApiResponse<CustomerOrder> response = new ApiResponse<>("Customer order fetched successfully!", order);
 		return ResponseEntity.ok(response);
 	}
+	
+	
+	//GET customer by user name 
+//	@GetMapping("/customer/{username}")
+//	@PreAuthorize("hasRole('ROLE_CUSTOMER')")
+//	public ResponseEntity<ApiResponse<CustomerOrder>> getCustomerOrderByUsername(@RequestBody String username){
+//		logger.info("Fetching customer order for: "+ username);
+//		CustomerOrder order = customerOrderService.getOrderByUserName(username);
+//		ApiResponse<CustomerOrder> response = new ApiResponse<>("Customer order fetched successfully!" , order);
+//		return ResponseEntity.ok(response);
+//	}
+	
+	@GetMapping("/byUsername/{username}")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_CUSTOMER')")
+    public ResponseEntity<ApiResponse<List<CustomerOrder>>> getOrdersByUsername(@PathVariable String username) {
+        logger.info("Fetching orders for username: {}", username);
+        List<CustomerOrder> orders = customerOrderService.getOrdersByUsername(username);
+        ApiResponse<List<CustomerOrder>> response = new ApiResponse<>("Orders fetched successfully!", orders);
+        return ResponseEntity.ok(response);
+    }
 
 	@PostMapping("/customer")
 	@PreAuthorize("hasRole('ROLE_CUSTOMER') or hasRole('ROLE_ADMIN')")
@@ -107,6 +128,8 @@ public class CustomerOrderController {
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 
+	
+	
 	@PutMapping("/customer/{id}")
 	@PreAuthorize("hasRole('ROLE_CUSTOMER') or hasRole('ROLE_ADMIN')")
 	public ResponseEntity<ApiResponse<String>> updateCustomerOrderById(@PathVariable Long id,
@@ -118,7 +141,7 @@ public class CustomerOrderController {
 	}
 
 	@DeleteMapping("/customer/{id}")
-	@PreAuthorize("hasAuthority('ROLE_ADMIN')")
+	@PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('ROLE_CUSTOMER')")
 	public ResponseEntity<ApiResponse<String>> deleteCustomerOrderById(@PathVariable Long id) {
 		logger.info("Deleting customer order with ID: {}", id);
 		customerOrderService.deleteOrder(id);

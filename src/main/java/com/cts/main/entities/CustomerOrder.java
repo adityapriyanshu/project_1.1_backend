@@ -134,8 +134,8 @@ public class CustomerOrder {
     @Column(name = "customer_phone_number")
     private String customerPhoneNumber;
 
-    @Column(name = "customer_table_number")
-    private String customerTableNumber;
+    @Column(name = "customer_address")
+    private String customerAddress;
 
     @ManyToMany
     @JoinTable(name = "customer_order_with_order_items", 
@@ -152,11 +152,11 @@ public class CustomerOrder {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private User user;
 
-    public CustomerOrder(String customerName, String customerPhoneNumber, String customerTableNumber,
+    public CustomerOrder(String customerName, String customerPhoneNumber, String customerAddress,
                          List<MenuItem> orderItems, double totalPrice) {
         this.customerName = customerName;
         this.customerPhoneNumber = customerPhoneNumber;
-        this.customerTableNumber = customerTableNumber;
+        this.customerAddress = customerAddress;
         this.orderItems = orderItems;
         this.totalPrice = totalPrice;
     }

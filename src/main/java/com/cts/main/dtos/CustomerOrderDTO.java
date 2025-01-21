@@ -3,7 +3,9 @@ package com.cts.main.dtos;
 import java.util.Map;
 
 import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
@@ -27,9 +29,16 @@ public class CustomerOrderDTO {
 	@Pattern(regexp = "^\\d{10}$", message = "Invalid phone number!")
 	private String customerPhoneNumber;
 
-	@NotNull(message = "Customer table number is required")
-	@Pattern(regexp = "^(10|[1-9])$", message = "Choose table number between 1 and 10")
-	private String customerTableNumber;
+	
+	@NotBlank(message = "Invalid Address: Cannot be blank!")
+	@NotNull(message = "Invalid Address: Cannot be null!")
+	@Size(min = 10, max = 50, message = "Invalid Address: Address should be 10 - 50 characters!")
+	private String customerAddress;
+
+	
+//	@NotNull(message = "Customer table number is required")
+//	@Pattern(regexp = "^(10|[1-9])$", message = "Choose table number between 1 and 10")
+//	private String customerTableNumber;
 
 //	@NotNull(message = "Order Items Required!")
 //	@Size(min = 1, message = "Please select at least one Food Item to order!")

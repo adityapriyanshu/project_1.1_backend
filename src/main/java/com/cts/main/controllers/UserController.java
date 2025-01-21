@@ -179,6 +179,8 @@
 package com.cts.main.controllers;
 
 import java.util.List;
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -187,12 +189,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import com.cts.main.dtos.UserDTO;
+import com.cts.main.entities.CustomerOrder;
 import com.cts.main.entities.User;
+import com.cts.main.repository.UserRepository;
 import com.cts.main.responses.ApiResponse;
+import com.cts.main.services.CustomerOrderService;
 import com.cts.main.services.UserService;
 
 import jakarta.validation.Valid;
@@ -200,12 +206,19 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/user")
 @Validated
+@CrossOrigin(origins = "http://localhost:3000")
 public class UserController {
 
 	private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private UserRepository userRepository;
+	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
 	@PostMapping("/adduser")
 	public ResponseEntity<ApiResponse<User>> createUser(@Valid @RequestBody UserDTO userDTO) {
@@ -264,6 +277,25 @@ public class UserController {
 		logger.info("Number of users fetched: {}", users.size());
 		return ResponseEntity.ok(response);
 	}
+	
+	@PostMapping("/login")
+    public ResponseEntity<ApiResponse<String>> loginUser(@RequestBody UserDTO userDTO) {
+        try {
+            // Authenticate user
+            Optional<User> optionalUser = userRepository.findByUsername(userDTO.getUsername());
+            if (optionalUser.isPresent()) {
+                User user = optionalUser.get();
+                if (passwordEncoder.matches(userDTO.getPassword(), user.getPassword())) {
+                    return ResponseEntity.ok(new ApiResponse<>("Login successful", user.getRoles()));
+                }
+            }
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse<>("Invalid username or password", null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse<>("Login failed", null));
+        }
+    }
+	
+	
 
 	private boolean isAdmin() {
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
